@@ -1,4 +1,4 @@
-#!/env python3
+#!/bin/env python3
 import warnings
 warnings.filterwarnings("ignore")
 import os
@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from functools import reduce
 import pysam
 import pysamstats
+from modules.utils import readVcf, addPysamstats, addFeatures
 # roc curve and auc score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -27,134 +28,21 @@ from sklearn import svm
 from sklearn.model_selection import StratifiedKFold
 from itertools import permutations
 
-def saveTree(model,features):
-    ## Extract single tree
-    estimator = model.estimators_[5]
-    from sklearn.tree import export_graphviz
-    # Export as dot file
-    export_graphviz(estimator, out_file='tree.dot',
-                feature_names = features,
-                class_names = ['False','True'],
-                rounded = True, proportion = False,
-                precision = 2, filled = True)
-
-def plot_recall_depth(df,prefix='unfiltered'):
-    g=sns.scatterplot('depth','Recall',hue='Sample',data=df)
-    #g.legend(loc='bottom left', bbox_to_anchor=(1.25, 0.5), ncol=1)
-    #plt.show()
-    plt.savefig('figs/{0}_depth_recall.png'.format(prefix))
-    plt.savefig('figs/{0}_depth_recall.pdf'.format(prefix))
-    plt.savefig('figs/{0}_depth_recall.svg'.format(prefix))
-    plt.clf()
-
-def plot_FP_depth(df,prefix='unfiltered'):
-    g=sns.scatterplot('depth','FP',hue='Model',style='Strain',data=df)
-    #g.legend(loc='bottom left', bbox_to_anchor=(1.25, 0.5), ncol=1)
-    #plt.show()
-    plt.savefig('figs/{0}_depth_FP.png'.format(prefix))
-    plt.savefig('figs/{0}_depth_FP.pdf'.format(prefix))
-    plt.savefig('figs/{0}_depth_FP.svg'.format(prefix))
-    plt.clf()
-
-
-def plot_recall_depth_comp(df,prefix='unfiltered'):
-    g=sns.scatterplot('depth','Recall',hue='Model',style='Strain',data=df,s=50)
-    g.legend(loc='lower right',ncol=2)
-    g.set(ylim=(0, 1))
-    g.set(xlim=(0, 130))
-    plt.savefig('figs/{0}_depth_recall.png'.format(prefix))
-    plt.savefig('figs/{0}_depth_recall.pdf'.format(prefix))
-    plt.savefig('figs/{0}_depth_recall.svg'.format(prefix))
-    #plt.show()
-    plt.clf()
-
-def plot_TN_depth_comp(df,prefix='unfiltered'):
-    g=sns.scatterplot('depth','TN',hue='Model',style='Strain',data=df,s=50)
-    #g.legend(loc='upper left',bbox_to_anchor=(1.04,1), ncol=1)
-    g.set(ylim=(0, None))
-    g.set(xlim=(0, 130))
-    #plt.tight_layout()
-    plt.savefig('figs/{0}_TN_recall.png'.format(prefix))
-    plt.savefig('figs/{0}_TN_recall.pdf'.format(prefix))
-    plt.savefig('figs/{0}_TN_recall.svg'.format(prefix))
-    #plt.show()
-    plt.clf()
-
-def plot_accuracy_depth_comp(df,prefix='unfiltered'):
-    g=sns.scatterplot('depth','Accuracy',hue='Model',style='Strain',data=df,s=50)
-    g.legend(loc='lower right',ncol=2)
-    g.set(ylim=(0, 1))
-    g.set(xlim=(0, 130))
-    plt.savefig('figs/{0}_Accuracy_recall.pdf'.format(prefix))
-    plt.savefig('figs/{0}_Accuracy_recall.svg'.format(prefix))
-    plt.savefig('figs/{0}_Accuracy_recall.png'.format(prefix))
-    #plt.show()
-    plt.clf()
-
-def plot_F1_depth_comp(df,prefix='unfiltered'):
-    g=sns.scatterplot('depth','F1 Score',hue='Model',style='Strain',data=df,s=50)
-    g.legend(loc='lower right',ncol=2)
-    g.set(ylim=(0, 1))
-    g.set(xlim=(0, 130))
-    plt.savefig('figs/{0}_F1_depth.png'.format(prefix))
-    plt.savefig('figs/{0}_F1_depth.pdf'.format(prefix))
-    plt.savefig('figs/{0}_F1_depth.svg'.format(prefix))
-    #plt.show()
-    plt.clf()
-
-def plot_prob_box(df):
-    df=df[df['SNP type'] != 'missed']
-    df=df.sample(5000)
-    g=sns.FacetGrid(df,row='SNP type',height=2, aspect=4)
-    g=g.map(sns.distplot,"composite prob")
-    plt.savefig('figs/probs_distplot.png')
-    plt.savefig('figs/probs_distplot.pdf')
-    plt.savefig('figs/probs_distplot.svg')
-    #plt.show()
-    plt.clf()
 
 
 ### train #####
-
-def readVcf(vcf):
-    vcf_cols=['CHROM',
-            'POS',
-            'ID',
-            'REF',
-            'ALT',
-            'QUAL',
-            'FILTER',
-            'INFO',
-            'FORMAT',
-            'SAMPLE']
-    df=pd.read_csv(vcf,
-        comment='#',
-        sep='\t',
-        names=vcf_cols)
-    return df
-
-def addPysamstats(vcf,bam,ref):
-    mybam = pysam.AlignmentFile(bam)
-    l=[]
-    pos=vcf['POS'].unique()
-    for rec in pysamstats.stat_variation_strand(mybam, ref):
-        if rec['pos'] in pos:
-            l.append(rec)
-    df=pd.DataFrame(l)
-    print(df)
-    vcf=vcf.merge(df,left_on=['CHROM','POS'],right_on=['chrom','pos'],how='left')
-    print(vcf)
-    return vcf
-
 
 class train:
     def getData(self):
         dfs=[]
         for vcf,bam,ref in zip(self.vcfs,self.bams,self.refs):
-            df=readVcf(vcf)
+            df = readVcf(vcf)
             df = addPysamstats(df,bam,ref)
             dfs.append(df)
+            df = addFeatures(df)
+
         df=pd.concat(dfs)
+        print(df)
         return df,dfs
 
     def runTrain(self):
