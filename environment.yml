@@ -1,0 +1,16 @@
+name: forest_filter 
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - biopython
+  - pysam
+  - pysamstats
+  - numpy
+  - pandas
+  - matplotlib
+  - seaborn
+  - blast 
+  - samtools
+  - scikit-learn

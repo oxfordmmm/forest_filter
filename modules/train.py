@@ -3,6 +3,7 @@ import warnings
 warnings.filterwarnings("ignore")
 import os
 import sys
+import pickle
 from argparse import ArgumentParser
 import numpy as np
 import pandas as pd
@@ -10,20 +11,21 @@ import seaborn as sns
 sns.set_style('darkgrid')
 import matplotlib.pyplot as plt
 from functools import reduce
+import pysam
+import pysamstats
 # roc curve and auc score
-#from sklearn.neighbors import KNeighborsClassifier
-#from sklearn.ensemble import RandomForestClassifier
-#from sklearn.ensemble import GradientBoostingClassifier
-#from sklearn.model_selection import train_test_split
-#from sklearn.metrics import roc_curve
-#from sklearn.metrics import precision_recall_curve
-##from sklearn.utils.fixes import signature
-#from sklearn.metrics import average_precision_score
-#from sklearn.metrics import roc_auc_score
-#from sklearn import svm
-#from sklearn.model_selection import StratifiedKFold
-#from itertools import permutations
-#import pickle
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_curve
+from sklearn.metrics import precision_recall_curve
+#from sklearn.utils.fixes import signature
+from sklearn.metrics import average_precision_score
+from sklearn.metrics import roc_auc_score
+from sklearn import svm
+from sklearn.model_selection import StratifiedKFold
+from itertools import permutations
 
 def saveTree(model,features):
     ## Extract single tree
@@ -111,34 +113,64 @@ def plot_prob_box(df):
     #plt.show()
     plt.clf()
 
+
+### train #####
+
+def readVcf(vcf):
+    vcf_cols=['CHROM',
+            'POS',
+            'ID',
+            'REF',
+            'ALT',
+            'QUAL',
+            'FILTER',
+            'INFO',
+            'FORMAT',
+            'SAMPLE']
+    df=pd.read_csv(vcf,
+        comment='#',
+        sep='\t',
+        names=vcf_cols)
+    return df
+
+def addPysamstats(vcf,bam,ref):
+    mybam = pysam.AlignmentFile(bam)
+    l=[]
+    pos=vcf['POS'].unique()
+    for rec in pysamstats.stat_variation_strand(mybam, ref):
+        if rec['pos'] in pos:
+            l.append(rec)
+    df=pd.DataFrame(l)
+    print(df)
+    vcf=vcf.merge(df,left_on=['CHROM','POS'],right_on=['chrom','pos'],how='left')
+    print(vcf)
+    return vcf
+
+
 class train:
     def getData(self):
-        p='snps/'
-        runs=os.listdir(p)
-        runs=[r for r in runs if r.endswith('.csv')]
-        #runs=[r for r in runs if 'fast' in r]
         dfs=[]
-        for run in runs:
-            csv='{0}{1}'.format(p,run)
-            df=pd.read_csv(csv)
+        for vcf,bam,ref in zip(self.vcfs,self.bams,self.refs):
+            df=readVcf(vcf)
+            df = addPysamstats(df,bam,ref)
             dfs.append(df)
         df=pd.concat(dfs)
         return df,dfs
 
     def runTrain(self):
         df,allFrames=self.getData()
-        df=df[~df['SNP validation'].isna()]
-        d={}
-        dfs=[]
-        models={}
-        for feat in feature_combinations:
-            features=feature_combinations[feat]
-            d[feat]=slef.trainTest(features,df,feat)
-            models[feat]=d[feat]['model']
+        #df=df[~df['SNP validation'].isna()]
+        #d={}
+        #dfs=[]
+        #models={}
+        #for feat in feature_combinations:
+        #    features=feature_combinations[feat]
+        #    d[feat]=slef.trainTest(features,df,feat)
+        #    models[feat]=d[feat]['model']
     
-        plot_roc_curve(d)
-        plot_recall_precision(d)
-        return models,allFrames
+        #plot_roc_curve(d)
+        #plot_recall_precision(d)
+        #return models,allFrames
     
     def trainTest(self, features,df,feat):
         # train and test
@@ -176,16 +208,16 @@ class train:
                 'y_test':Y,'y_score':preds,'model':model}
     
     def run(self,opts):
-        self.vcfs=opts.vcfs
-        self.pysams=opts.pysams
-        self.refs=opts.refs
-        models,dfs=runTrain()
+        self.vcfs=opts.vcf_files
+        self.bams=opts.bam_files
+        self.refs=opts.ref_files
+        self.runTrain()
 
     def getTrainArgs(self,parser):
         parser.add_argument('-v', '--vcf_files', required=True, nargs='+',
                                  help='Input VCF files to be used for training or filtering')
         parser.add_argument('-f', '--ref_files', required=True, nargs='+',
                                  help='reference fasta files for training')
-        parser.add_argument('-p', '--pysamstats_files', required=True, nargs='+',
+        parser.add_argument('-b', '--bam_files', required=True, nargs='+',
                                  help='pysamstats files')
         return parser
