@@ -5,9 +5,14 @@ import pickle
 from argparse import ArgumentParser
 import numpy as np
 import pandas as pd
+import seaborn as sns
+sns.set_style('darkgrid')
+import matplotlib.pyplot as plt
 import pysam
 import pysamstats
+from Bio import SeqIO
 from itertools import permutations
+
 
 ## file loading
 def readVcf(vcf):
@@ -70,7 +75,23 @@ def addFeatures(df):
         df['ps']=df.apply(ps, axis=1)
     return df
 
+def addTruth(df, truth):
+    seqs={}
+    with open(truth,'rt') as inf:
+        for seq in SeqIO.parse(inf,'fasta'):
+            seqs[str(seq.id)]=str(seq.seq)
+    df['SNP validation']=df.apply(checkRef,axis=1,seqs=seqs)
+    return df
 
+
+def checkRef(row,seqs=None):
+    chrom=str(row['CHROM'])
+    pos  =int(row['POS']) -1 
+    ref_base=seqs[chrom][pos]
+    if ref_base==row['ALT'][0]:
+        return True
+    else:
+        return False
 
 
 
@@ -147,6 +168,60 @@ def ps(row):
 
 
 ## plots
+
+def plotFeatureImportances(importances,std,indices,features,feat):
+    plt.figure()
+    plt.title("Relative importance of features")
+    df=pd.DataFrame({'Importance':importances,'std':std,'indices':indices,'feature':features})
+    df.to_csv('{0}_feat_importance.csv'.format(feat.replace(' ','_')))
+    g = sns.barplot(y='feature', x="Importance", xerr=df['std'], capsize=.2, data=df)
+#    plt.bar(importances[indices],features
+#            color="r", yerr=std[indices], align="center")
+    #plt.xticks(features, indices)
+    #plt.xlim([-1, len(features)])
+    plt.tight_layout()
+    plt.savefig('figs/{0}_feat_importance.pdf'.format(feat.replace(' ','_')))
+    plt.savefig('figs/{0}_feat_importance.png'.format(feat.replace(' ','_')))
+    plt.savefig('figs/{0}_feat_importance.svg'.format(feat.replace(' ','_')))
+    plt.clf()
+
+def plotRocCurve(d):
+    for i in d:
+        plt.plot(d[i]['fpr'], d[i]['tpr'], label='{0}, AUC:{1:.2f}'.format(i,d[i]['AUC']))
+    plt.plot([0, 1], [0, 1], color='darkblue', linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic (ROC) Curve')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('figs/ROC.pdf')
+    plt.savefig('figs/ROC.png')
+    plt.savefig('figs/ROC.svg')
+    #plt.show()
+    plt.clf()
+
+def plotRecallPrecision(d):
+    for i in d:
+        average_precision = average_precision_score(d[i]['y_test'], d[i]['y_score'])
+        precision, recall, _ = precision_recall_curve(d[i]['y_test'], d[i]['y_score'])
+#        step_kwargs = ({'step': 'post'}
+#               if 'step' in signature(plt.fill_between).parameters
+#               else {})
+        plt.step(recall, precision, where='post', label='{0} AP:{1:.2f}'.format(i,average_precision))
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.ylim([0.0, 1.05])
+    plt.xlim([0.0, 1.0])
+    plt.title('Precision-Recall curve')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('figs/PR.pdf')
+    plt.savefig('figs/PR.png')
+    plt.savefig('figs/PR.svg')
+
+    plt.clf()
+
+
 def saveTree(model,features):
     ## Extract single tree
     estimator = model.estimators_[5]
@@ -158,7 +233,7 @@ def saveTree(model,features):
                 rounded = True, proportion = False,
                 precision = 2, filled = True)
 
-def plot_recall_depth(df,prefix='unfiltered'):
+def plotRecallDepth(df,prefix='unfiltered'):
     g=sns.scatterplot('depth','Recall',hue='Sample',data=df)
     #g.legend(loc='bottom left', bbox_to_anchor=(1.25, 0.5), ncol=1)
     #plt.show()
