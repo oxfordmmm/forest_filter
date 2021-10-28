@@ -44,7 +44,5 @@ class TestCalc(unittest.TestCase):
         #print(exp['preds'])
         #self.assertCountEqual(d['preds'],exp['preds'])
 
-
-
 if __name__ == '__main__':
     unittest.main()

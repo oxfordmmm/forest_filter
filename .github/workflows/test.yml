@@ -20,3 +20,4 @@ jobs:
           environment-file: environment.yml
       - run: |
           python3 -m unittest test/test_train.py
+          python3 -m unittest test/test_classify.py
