@@ -18,4 +18,4 @@ jobs:
           environment-file: environment.yml
           activate-environment: forest_filter
       - name: Test 
-        run: python -m unittest test/test_train.py
+        run: python3 -m unittest test/test_train.py
