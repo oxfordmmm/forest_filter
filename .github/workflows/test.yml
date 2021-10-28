@@ -14,9 +14,8 @@ jobs:
       - name: Setup conda 
         uses: s-weigand/setup-conda@v1
         with:
-          activate-environment: forest_filter
+          update-conda: true
+          python-version: ${{ matrix.python-version }}
           environment-file: environment.yml
-          python-version: 3.6
-          auto-activate-base: false
     - name: Test 
       run: python -m unittest test/test_train.py
