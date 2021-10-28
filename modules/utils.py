@@ -180,9 +180,9 @@ def plotFeatureImportances(importances,std,indices,features,feat):
     #plt.xticks(features, indices)
     #plt.xlim([-1, len(features)])
     plt.tight_layout()
-    plt.savefig('figs/{0}_feat_importance.pdf'.format(feat.replace(' ','_')))
-    plt.savefig('figs/{0}_feat_importance.png'.format(feat.replace(' ','_')))
-    plt.savefig('figs/{0}_feat_importance.svg'.format(feat.replace(' ','_')))
+    plt.savefig('{0}_feat_importance.pdf'.format(feat.replace(' ','_')))
+    plt.savefig('{0}_feat_importance.png'.format(feat.replace(' ','_')))
+    plt.savefig('{0}_feat_importance.svg'.format(feat.replace(' ','_')))
     plt.clf()
 
 def plotRocCurve(d):
@@ -194,9 +194,9 @@ def plotRocCurve(d):
     plt.title('Receiver Operating Characteristic (ROC) Curve')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('figs/ROC.pdf')
-    plt.savefig('figs/ROC.png')
-    plt.savefig('figs/ROC.svg')
+    plt.savefig('ROC.pdf')
+    plt.savefig('ROC.png')
+    plt.savefig('ROC.svg')
     #plt.show()
     plt.clf()
 
@@ -215,9 +215,9 @@ def plotRecallPrecision(d):
     plt.title('Precision-Recall curve')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('figs/PR.pdf')
-    plt.savefig('figs/PR.png')
-    plt.savefig('figs/PR.svg')
+    plt.savefig('PR.pdf')
+    plt.savefig('PR.png')
+    plt.savefig('PR.svg')
 
     plt.clf()
 
@@ -237,18 +237,18 @@ def plotRecallDepth(df,prefix='unfiltered'):
     g=sns.scatterplot('depth','Recall',hue='Sample',data=df)
     #g.legend(loc='bottom left', bbox_to_anchor=(1.25, 0.5), ncol=1)
     #plt.show()
-    plt.savefig('figs/{0}_depth_recall.png'.format(prefix))
-    plt.savefig('figs/{0}_depth_recall.pdf'.format(prefix))
-    plt.savefig('figs/{0}_depth_recall.svg'.format(prefix))
+    plt.savefig('{0}_depth_recall.png'.format(prefix))
+    plt.savefig('{0}_depth_recall.pdf'.format(prefix))
+    plt.savefig('{0}_depth_recall.svg'.format(prefix))
     plt.clf()
 
 def plot_FP_depth(df,prefix='unfiltered'):
     g=sns.scatterplot('depth','FP',hue='Model',style='Strain',data=df)
     #g.legend(loc='bottom left', bbox_to_anchor=(1.25, 0.5), ncol=1)
     #plt.show()
-    plt.savefig('figs/{0}_depth_FP.png'.format(prefix))
-    plt.savefig('figs/{0}_depth_FP.pdf'.format(prefix))
-    plt.savefig('figs/{0}_depth_FP.svg'.format(prefix))
+    plt.savefig('{0}_depth_FP.png'.format(prefix))
+    plt.savefig('{0}_depth_FP.pdf'.format(prefix))
+    plt.savefig('{0}_depth_FP.svg'.format(prefix))
     plt.clf()
 
 
@@ -257,9 +257,9 @@ def plot_recall_depth_comp(df,prefix='unfiltered'):
     g.legend(loc='lower right',ncol=2)
     g.set(ylim=(0, 1))
     g.set(xlim=(0, 130))
-    plt.savefig('figs/{0}_depth_recall.png'.format(prefix))
-    plt.savefig('figs/{0}_depth_recall.pdf'.format(prefix))
-    plt.savefig('figs/{0}_depth_recall.svg'.format(prefix))
+    plt.savefig('{0}_depth_recall.png'.format(prefix))
+    plt.savefig('{0}_depth_recall.pdf'.format(prefix))
+    plt.savefig('{0}_depth_recall.svg'.format(prefix))
     #plt.show()
     plt.clf()
 
@@ -269,7 +269,7 @@ def plot_TN_depth_comp(df,prefix='unfiltered'):
     g.set(ylim=(0, None))
     g.set(xlim=(0, 130))
     #plt.tight_layout()
-    plt.savefig('figs/{0}_TN_recall.png'.format(prefix))
-    plt.savefig('figs/{0}_TN_recall.pdf'.format(prefix))
-    plt.savefig('figs/{0}_TN_recall.svg'.format(prefix))
+    plt.savefig('{0}_TN_recall.png'.format(prefix))
+    plt.savefig('{0}_TN_recall.pdf'.format(prefix))
+    plt.savefig('{0}_TN_recall.svg'.format(prefix))
 

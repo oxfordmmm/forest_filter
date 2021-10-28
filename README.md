@@ -30,6 +30,14 @@ forest_filter.py train \
 	-t MRSA252.fasta
 ```
 
+This should improve upon "QUAL" only as shown in this diagram
+[![ROC](https://github.com/oxfordmmm/forest_filter/figs/ROC.png)
+
+The features and their importances for training are are.
+[![ROC](https://github.com/oxfordmmm/forest_filter/figs/composite_feat_importance.png)
+
+
+
 ### Classify
 The SNPs can be classified and therefore filtered with this command.
 
