@@ -18,4 +18,4 @@ jobs:
           environment-file: environment.yml
           auto-activate-base: false
       - run: |
-          conda activate forest_filter && python3 -m unittest test/test_train.py
+          conda init bash && conda activate forest_filter && python3 -m unittest test/test_train.py
