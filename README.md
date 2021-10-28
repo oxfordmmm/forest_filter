@@ -4,7 +4,8 @@ Using random forest classfiers to filter SNP calls
 # Tests
  ![Tests](https://github.com/oxfordmmm/forest_filter/actions/workflows/test.yml/badge.svg)
 
-## Installation
+
+## Install
 
 Forest filter can be installed using Conda.
 

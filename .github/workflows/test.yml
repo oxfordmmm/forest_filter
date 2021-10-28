@@ -4,6 +4,9 @@ on: [push]
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash -l {0}
     strategy:
       matrix:
         os: [macos-latest]
@@ -16,4 +19,4 @@ jobs:
           python-version: ${{ matrix.python-version }}
           environment-file: environment.yml
       - run: |
-          conda activate forest_filter && python3 -m unittest test/test_train.py
+          python3 -m unittest test/test_train.py
