@@ -31,7 +31,7 @@ forest_filter.py train \
 ```
 
 This should improve upon "QUAL" only as shown in this diagram
-[![ROC](https://github.com/oxfordmmm/forest_filter/blob/figs/ROC.png)]
+![ROC](figs/ROC.png?raw=true "ROC")
 
 The features and their importances for training are are.
 [![ROC](https://github.com/oxfordmmm/forest_filter/blob/figs/composite_feat_importance.png)]
