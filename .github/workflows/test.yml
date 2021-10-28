@@ -16,6 +16,5 @@ jobs:
         with:
           update-conda: true
           python-version: ${{ matrix.python-version }}
-          environment-file: environment.yml
     - name: Test 
       run: python -m unittest test/test_train.py
