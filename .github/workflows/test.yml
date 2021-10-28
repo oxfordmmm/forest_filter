@@ -6,8 +6,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        python-version: [3.6, 3.9]
+        os: [macos-latest]
+        python-version: [3.9]
     name: Python ${{ matrix.python-version }} (${{ matrix.os }})
     steps:
       - uses: actions/checkout@v2
@@ -17,5 +17,6 @@ jobs:
           update-conda: true
           python-version: ${{ matrix.python-version }}
           environment-file: environment.yml
+          activate-environment: forest_filter
       - name: Test 
         run: python -m unittest test/test_train.py
