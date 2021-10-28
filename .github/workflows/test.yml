@@ -11,11 +11,12 @@ jobs:
     name: Python ${{ matrix.python-version }} (${{ matrix.os }})
     steps:
       - uses: actions/checkout@v2
-      - uses: conda-incubator/setup-miniconda@v2
+      - name: Setup conda 
+        uses: s-weigand/setup-conda@v1
         with:
           activate-environment: forest_filter
           environment-file: environment.yml
           python-version: 3.6
           auto-activate-base: false
-    - name: Install
+    - name: Test 
       run: python -m unittest test/test_train.py
