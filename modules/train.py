@@ -24,17 +24,13 @@ from sklearn.metrics import roc_auc_score
 ### train #####
 
 class train:
-    def getData(self):
-        dfs=[]
-        for vcf,bam,ref,truth in zip(self.vcfs,self.bams,self.refs,self.truths):
-            df = readVcf(vcf)
-            df = addPysamstats(df,bam,ref)
-            df = addFeatures(df)
-            df = addTruth(df,truth)
-            dfs.append(df)
-
-        df=pd.concat(dfs)
-        return df,dfs
+    def run(self,opts):
+        self.vcfs=opts.vcf_files
+        self.bams=opts.bam_files
+        self.refs=opts.ref_files
+        self.truths=opts.truth_files
+        self.prefix=opts.prefix
+        self.runTrain()
 
     def runTrain(self):
         df,allFrames=self.getData()
@@ -48,6 +44,19 @@ class train:
             models[feat]=d[feat]['model']
     
         plotRocCurve(d)
+
+    def getData(self):
+        dfs=[]
+        for vcf,bam,ref,truth in zip(self.vcfs,self.bams,self.refs,self.truths):
+            df = readVcf(vcf)
+            df = addPysamstats(df,bam,ref)
+            df = addFeatures(df)
+            df = addTruth(df,truth)
+            dfs.append(df)
+
+        df=pd.concat(dfs)
+        return df,dfs
+
     
     def trainTest(self, features,df,feat):
         # prepare train and test data
@@ -82,13 +91,6 @@ class train:
         return {'fpr':fpr,'tpr':tpr,'AUC':auc,'probs':probs,'preds':preds,
                 'y_test':Y,'y_score':preds,'model':model}
     
-    def run(self,opts):
-        self.vcfs=opts.vcf_files
-        self.bams=opts.bam_files
-        self.refs=opts.ref_files
-        self.truths=opts.truth_files
-        self.prefix=opts.prefix
-        self.runTrain()
 
     def getTrainArgs(self,parser):
         parser.add_argument('-v', '--vcf_files', required=True, nargs='+',

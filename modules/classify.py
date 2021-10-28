@@ -66,25 +66,29 @@ class classify:
             return True
 
     def classify(self):
+        # prep data
         features=feature_combinations[self.combination]
-        print(self.SNPs[features])
         X=np.array(self.SNPs[features])
+
+        # predict
         preds = self.model.predict(X)
         probs = self.model.predict_proba(X)
+
+        # rearrange data
         probs=pd.DataFrame(probs,columns=[True,False])
         p=probs.max(axis=1)
         self.SNPs['preds']=preds
         self.SNPs['probs']=p
+
+        # apply masking
         self.SNPs['mask']=self.SNPs.apply(self.maskProbs,axis=1)
         keep=self.SNPs[self.SNPs.preds==True]
-        s=set(keep.POS)
+        s=set(keep['POS'])
         self.keep.update(s)
         mask=self.SNPs[self.SNPs['mask']==True]
         psmask=self.SNPs[self.SNPs['ps']<0.8]
         self.mask=set(mask['POS'])
-        print(len(self.mask))
         self.mask.update(list(psmask['POS']))
-        print(len(self.mask))
 
     def _vcf_reader(self):
         vcf_reader = vcf.Reader(open(self.inVCF, 'r'))
@@ -103,5 +107,4 @@ class classify:
                         record.ALT = 'N'
                         print('masking',record.POS)
                 vcf_writer.write_record(record)
-
         vcf_writer.close()
