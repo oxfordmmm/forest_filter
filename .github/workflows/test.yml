@@ -1,0 +1,22 @@
+name: tests
+on: [push]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: [3.6, 3.9]
+    name: Python ${{ matrix.python-version }} (${{ matrix.os }})
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: forest_filter
+          environment-file: environment.yml
+          python-version: 3.7
+          auto-activate-base: false
+    - name: Install
+      run: python -m unittest test/test_train.py
