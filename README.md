@@ -31,10 +31,10 @@ forest_filter.py train \
 ```
 
 This should improve upon "QUAL" only as shown in this diagram
-[![ROC](https://github.com/oxfordmmm/forest_filter/blob/figs/ROC.png)]
+![ROC](figs/ROC.png?raw=true "ROC")
 
 The features and their importances for training are are.
-[![ROC](https://github.com/oxfordmmm/forest_filter/blob/figs/composite_feat_importance.png)]
+![FEATURES](figs/composite_feat_importance.png?raw=true "Feature importances")
 
 
 
@@ -50,4 +50,13 @@ forest_filter.py classify \
 	-o filtered.vcf
 ```
 
+## Testing
 
+To run the tests, use these commands.
+
+```bash
+python3 -m unittest test/test_train.py
+python3 -m unittest test/test_classify.py 
+```
+
+These tests are also run by github actions.
