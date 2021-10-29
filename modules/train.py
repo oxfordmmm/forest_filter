@@ -55,6 +55,7 @@ class train:
             dfs.append(df)
 
         df=pd.concat(dfs)
+        #df.to_csv('test/data/train_test_data.csv')
         return df,dfs
 
     

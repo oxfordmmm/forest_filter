@@ -13,6 +13,7 @@ class TestCalc(unittest.TestCase):
         t.inVCF='test/data/MRSA_r9_10.vcf'
         t.ref='test/data/MRSA252_mut.fasta'
         t.getData()
+        #t.SNPs.to_csv('test/data/example_classifier_data.csv')
         dfExpected=pd.read_csv('test/data/example_classifier_data.csv',index_col=0)
         pd._testing.assert_frame_equal(t.SNPs, dfExpected)
 
@@ -27,8 +28,8 @@ class TestCalc(unittest.TestCase):
         t.SNPs=pd.read_csv('test/data/example_classifier_data_full.csv',index_col=0)
         t.loadModel()
         t.classify()
-        t.SNPs.to_csv('test/data/example_classified_data.csv')
-        dfExpected=pd.read_csv('test/data/example_classified_data.csv',index_col=0)
+        #t.SNPs.to_csv('test/data/example_classified_data_full.csv')
+        dfExpected=pd.read_csv('test/data/example_classified_data_full.csv',index_col=0)
         pd._testing.assert_frame_equal(t.SNPs, dfExpected)
 
 if __name__ == '__main__':

@@ -69,10 +69,11 @@ def addFeatures(df):
     df['top_base'] = df[['A','T','C','G']].max(axis=1)
     df['top_base_seq'] = df[['A','T','C','G']].idxmax(axis=1)
     df['majority base %'] = (df['top_base'] / df['reads_all'])
-    df['Top Base matches Nanopolish'] = np.where(df.ALT == df.top_base_seq,1,0)
+    df['Top Base matches VC'] = np.where(df.ALT == df.top_base_seq,1,0)
     df=df[df['majority base %'].notna()]
     if len(df)>0:
         df['ps']=df.apply(ps, axis=1)
+        df['strand bias']=df.apply(strandBias,axis=1)
     return df
 
 def addTruth(df, truth):
@@ -165,6 +166,19 @@ def ps(row):
     else:
         x = float(row[row['ALT']+'_PS'])
     return x
+
+def strandBias(r):
+    if r['reads_rev']==0:
+        rs=0
+    else:
+        rs=r['reads_rev']/r['reads_all']
+    if r['reads_fwd']==0:
+        fs=0
+    else:
+        fs=r['reads_fwd']/r['reads_all']
+    return 1*fs
+
+
 
 
 ## plots
