@@ -9,6 +9,7 @@ class TestCalc(unittest.TestCase):
 
     def test_getData(self):
         t=train()
+        t.prefix='test'
         t.bams=['test/data/test.bam']
         t.vcfs=['test/data/MRSA_r9_10.vcf']
         t.refs=['test/data/MRSA252_mut.fasta']

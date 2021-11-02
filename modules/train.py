@@ -55,7 +55,13 @@ class train:
             dfs.append(df)
 
         df=pd.concat(dfs)
-        #df.to_csv('test/data/train_test_data.csv')
+
+        # remove any duplicated positions
+        df = df.sample(frac=1).reset_index(drop=True)
+        df.drop_duplicates(subset=['CHROM','POS'], keep='first', inplace=True)
+
+        if self.prefix != None:
+            df.to_csv('{}_train_test_data.csv'.format(self.prefix))
         return df,dfs
 
     

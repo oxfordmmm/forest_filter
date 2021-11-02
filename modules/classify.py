@@ -55,7 +55,6 @@ class classify:
         df = readVcf(self.inVCF)
         df = addPysamstats(df,self.bam,self.ref)
         self.SNPs = addFeatures(df)
-        self.SNPs.to_csv('test/data/example_classifier_data_full.csv')
 
     def loadModel(self):
         self.model = pickle.load(open(self.modelFile, 'rb'))
