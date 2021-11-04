@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from functools import reduce
 from itertools import permutations
-from modules.utils import readVcf, addPysamstats, addFeatures, addTruth, plotFeatureImportances 
+from modules.utils import readVcf, addPysamstats, addFeatures, addTruth, addTruthCSV, plotFeatureImportances 
 from modules.utils import plotFeatureImportances, plotRocCurve, plotRecallPrecision
 from modules.features import feature_combinations
 # roc curve and auc score
@@ -44,6 +44,19 @@ class train:
             models[feat]=d[feat]['model']
     
         plotRocCurve(d)
+        
+    def runTrainINDELs(self):
+        df,allFrames=self.getData()
+        df=df[~df['SNP validation'].isna()]
+        d={}
+        dfs=[]
+        models={}
+        for feat in feature_combinations:
+            features=feature_combinations[feat]
+            d[feat]=self.trainTest(features,df,feat)
+            models[feat]=d[feat]['model']
+    
+        plotRocCurve(d)
 
     def getData(self):
         dfs=[]
@@ -51,7 +64,10 @@ class train:
             df = readVcf(vcf)
             df = addPysamstats(df,bam,ref)
             df = addFeatures(df)
-            df = addTruth(df,truth)
+            if truth.endswith('.fasta'):
+                df = addTruth(df,truth)
+            if truth.endswith('.csv'):
+                df = addTruthCSV(df,truth)
             dfs.append(df)
 
         df=pd.concat(dfs)

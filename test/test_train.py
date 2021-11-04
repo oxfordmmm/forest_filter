@@ -15,7 +15,9 @@ class TestCalc(unittest.TestCase):
         t.refs=['test/data/MRSA252_mut.fasta']
         t.truths=['test/data/MRSA252.fasta']
         df,dfs=t.getData()
-        df.to_csv('test/data/combined_results.csv')
+        df.sort_values(by='POS',inplace=True)
+        df=df.reset_index(drop=True)
+        #df.to_csv('test/data/combined_results.csv')
         dfExpected=pd.read_csv('test/data/combined_results.csv',index_col=0)
         pd._testing.assert_frame_equal(df, dfExpected)
 
@@ -34,8 +36,8 @@ class TestCalc(unittest.TestCase):
         d['y_test']=d['y_test'].tolist()
         d['y_score']=d['y_score'].tolist()
         d['AUC']=float(d['AUC'])
-        with open('test/data/train_results.json', 'w') as fp:
-            json.dump(d, fp)
+        #with open('test/data/train_results.json', 'w') as fp:
+        #    json.dump(d, fp)
 
         with open('test/data/train_results.json', 'r') as fp:
             exp=json.load(fp)

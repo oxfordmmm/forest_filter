@@ -84,6 +84,10 @@ def addTruth(df, truth):
     df['SNP validation']=df.apply(checkRef,axis=1,seqs=seqs)
     return df
 
+def addTruthCSV(df, truth):
+    df=pd.read_csv(truth)
+    # merge truth with VCF (somehow match with deletions)
+    # do SNP validation
 
 def checkRef(row,seqs=None):
     chrom=str(row['CHROM'])
