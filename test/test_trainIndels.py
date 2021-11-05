@@ -12,22 +12,22 @@ class TestCalc(unittest.TestCase):
         t.prefix='test'
         t.bams=['test/data/INDELs/MRSA_r9.10.sorted.bam']
         t.vcfs=['test/data/INDELs/MRSA_r9_10.vcf']
-        t.refs=['test/data/INDELs/MRSA252_mut.fasta']
-        t.truths=['test/data/INDELs/MRSA252_mut.csv']
+        t.refs=['test/data/INDELs/MRSA_mut.fasta']
+        t.truths=['test/data/INDELs/MRSA_mut.csv']
         df,dfs=t.getData()
         df.sort_values(by='POS',inplace=True)
         df=df.reset_index(drop=True)
         #df.to_csv('test/data/INDELs/combined_results.csv')
-        #dfExpected=pd.read_csv('test/data/combined_results.csv',index_col=0)
-        #pd._testing.assert_frame_equal(df, dfExpected)
+        dfExpected=pd.read_csv('test/data/INDELs/combined_results.csv',index_col=0)
+        pd._testing.assert_frame_equal(df, dfExpected)
 
-#   def test_train(self):
-#        t=train()
-#        t.prefix='test'
-#        df=pd.read_csv('test/data/train_test_data.csv',index_col=0)
-#        feat='composite'
-#        features=feature_combinations[feat]
-#        d=t.trainTest(features,df,feat)
+    def test_train(self):
+        t=train()
+        t.prefix='test'
+        df=pd.read_csv('test/data/INDELs/combined_results.csv',index_col=0)
+        feat='compositeINDELs'
+        features=feature_combinations[feat]
+        d=t.trainTest(features,df,feat)
 #        del d['model']
 #        d['fpr']=d['fpr'].tolist()
 #        d['tpr']=d['tpr'].tolist()

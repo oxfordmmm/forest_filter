@@ -30,7 +30,10 @@ class train:
         self.refs=opts.ref_files
         self.truths=opts.truth_files
         self.prefix=opts.prefix
-        self.runTrain()
+        if self.truths[0].endswith('.csv'):
+            self.runTrainINDELs()
+        else:
+            self.runTrain()
 
     def runTrain(self):
         df,allFrames=self.getData()
@@ -39,6 +42,7 @@ class train:
         dfs=[]
         models={}
         for feat in feature_combinations:
+            if feat=='compositeINDELs': continue
             features=feature_combinations[feat]
             d[feat]=self.trainTest(features,df,feat)
             models[feat]=d[feat]['model']
@@ -52,6 +56,7 @@ class train:
         dfs=[]
         models={}
         for feat in feature_combinations:
+            if feat=='composite': continue
             features=feature_combinations[feat]
             d[feat]=self.trainTest(features,df,feat)
             models[feat]=d[feat]['model']
@@ -63,10 +68,11 @@ class train:
         for vcf,bam,ref,truth in zip(self.vcfs,self.bams,self.refs,self.truths):
             df = readVcf(vcf)
             df = addPysamstats(df,bam,ref)
-            df = addFeatures(df)
             if truth.endswith('.fasta'):
+                df = addFeatures(df)
                 df = addTruth(df,truth)
             if truth.endswith('.csv'):
+                df = addFeatures(df,mode='INDELs_only')
                 df = addTruthCSV(df,truth)
             dfs.append(df)
 

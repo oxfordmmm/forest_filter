@@ -43,9 +43,9 @@ def addPysamstats(vcf,bam,ref):
     vcf=vcf.merge(df,left_on=['CHROM','POS'],right_on=['chrom','pos'],how='left')
     return vcf
 
-def addFeatures(df):
-    df['ALT_len']=df.ALT.map(len)
-    df['REF_len']=df.REF.map(len)
+def addFeatures(df,mode='SNPs_only'):
+    df['ALT_len']=df['ALT'].map(len)
+    df['REF_len']=df['REF'].map(len)
     df['INDEL length']=df['ALT_len'] -  df['REF_len']
 
     df['5prime proximity']=df['POS']-df['POS'].shift(1)
@@ -54,11 +54,13 @@ def addFeatures(df):
     df['proximty']=df[['5prime proximity','3prime proximity']].min(axis=1)
     df['proximty'].fillna(5000,inplace=True)
     df['alphabeta']=df.apply(alphaBeta,axis=1)
-    df=df[df.REF_len==1]
-    df=df[df.ALT_len==1]
+    if mode=='SNPs_only':
+        df=df[df['REF_len']==1]
+        df=df[df['ALT_len']==1]
 
     if len(df) > 0:
-        df['baseChange']=df.apply(addBaseChangeN,axis=1)
+        if mode=='SNPs_only':
+            df['baseChange']=df.apply(addBaseChangeN,axis=1)
 
     df['total']=df['A']+df['C']+df['G']+df['T']
     bases=['A','T','C','G','insertions','deletions']
@@ -72,7 +74,7 @@ def addFeatures(df):
     df['Top Base matches VC'] = np.where(df.ALT == df.top_base_seq,1,0)
     df=df[df['majority base %'].notna()]
     if len(df)>0:
-        df['ps']=df.apply(ps, axis=1)
+        #df['ps']=df.apply(ps, axis=1)
         df['strand bias']=df.apply(strandBias,axis=1)
     return df
 
@@ -85,9 +87,32 @@ def addTruth(df, truth):
     return df
 
 def addTruthCSV(df, truth):
-    df=pd.read_csv(truth)
+    t=pd.read_csv(truth)
     # merge truth with VCF (somehow match with deletions)
-    # do SNP validation
+    df2=df.merge(t, left_on=['CHROM','POS'], right_on=['Chrom','pos'], how='left')
+    # do SNP validationSNP validation
+    df2['SNP validation']=df2.apply(checkTruthCSV,axis=1)
+    return df2
+
+
+def checkTruthCSV(row):
+    if pd.isnull(row['mut']):
+        return False
+    if row['INDEL length'] < 0:
+        # what was the mutation type in the reference (opposite to what is called)
+        if row['Type'] =='ins':
+            if abs(row['INDEL length']) == row['size']:
+                return True
+            else: return False
+        else: return False
+    if row['INDEL length'] > 0:
+        # what was the mutation type in the reference (opposite to what is called)
+        if row['Type'] =='del':
+            if abs(row['INDEL length']) == row['size']:
+                return True
+            else: return False
+        else: return False
+    return False
 
 def checkRef(row,seqs=None):
     chrom=str(row['CHROM'])
