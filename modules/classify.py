@@ -32,7 +32,7 @@ class classify:
                              help='mask weakly supported positions from pysam')
         parser.add_argument('-c', '--combination', required=False, default='composite',
                              help='name of the features to use, default=composite')
-        parser.add_argument('-m', '--mode', required=False, default='SNPs_only',
+        parser.add_argument('-fm', '--filtermode', required=False, default='SNPs_only',
                              help='Filter for SNPs or INDELS, default=SNPs_only')
         return parser
 
@@ -45,7 +45,7 @@ class classify:
         self.combination=opts.combination
         self.keep=set()
         self.probFilt=float(opts.probFilt)
-        self.mode=opts.mode
+        self.mode=opts.filtermode
         self.maskWeak = opts.maskWeak
 
         # run
@@ -89,11 +89,11 @@ class classify:
         s=set(keep['POS'])
         self.keep.update(s)
         mask=self.SNPs[self.SNPs['mask']==True]
-        if self.mode=='SNPs_only':
-            psmask=self.SNPs[self.SNPs['ps']<0.8]
+        #if self.mode=='SNPs_only':
+        #    psmask=self.SNPs[self.SNPs['ps']<0.8]
         self.mask=set(mask['POS'])
-        if self.mode=='SNPs_only':
-            self.mask.update(list(psmask['POS']))
+        #if self.mode=='SNPs_only':
+        #    self.mask.update(list(psmask['POS']))
 
     def _vcf_reader(self):
         vcf_reader = vcf.Reader(open(self.inVCF, 'r'))

@@ -12,6 +12,7 @@ class TestCalc(unittest.TestCase):
         t.bam='test/data/test.bam'
         t.inVCF='test/data/MRSA_r9_10.vcf'
         t.ref='test/data/MRSA252_mut.fasta'
+        t.mode='SNPs_only'
         t.getData()
         #t.SNPs.to_csv('test/data/example_classifier_data.csv')
         dfExpected=pd.read_csv('test/data/example_classifier_data.csv',index_col=0)
@@ -19,6 +20,7 @@ class TestCalc(unittest.TestCase):
 
     def test_classifier(self):
         t=classify()
+        t.mode='SNPs_only'
         t.combination='composite'
         t.keep=set()
         t.probFilt=0
